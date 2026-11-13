@@ -1,0 +1,9 @@
+# Lo que no se envía a docker build (el código y los datos se montan con -v al correr)
+.git
+datos
+dataset_limon_sutil
+resultados*
+modelo/*.pt
+notebooks
+**/__pycache__
+.venv

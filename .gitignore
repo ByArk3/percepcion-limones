@@ -5,7 +5,7 @@ datos/
 *.zip
 *.docx
 mlflow.db
-mlruns/
+mlruns*/
 
 # Salidas del notebook (solo se suben resultados_spark/ y resultados_servicio/)
 resultados/
