@@ -1,0 +1,17 @@
+# Librerías para correr Grupo3_limones_local.ipynb en la PC (Python 3.11 o 3.12)
+numpy
+pandas
+matplotlib
+opencv-python
+scikit-image
+scikit-learn
+PyWavelets
+pillow
+pillow-heif
+torch
+torchvision
+torchinfo
+mlflow
+pyspark==4.0.1
+pyarrow
+ipykernel

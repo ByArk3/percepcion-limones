@@ -1,0 +1,20 @@
+# Datos y pesos (no van al repositorio)
+dataset_limon_sutil/
+datos/
+*.pt
+*.zip
+*.docx
+mlflow.db
+mlruns/
+
+# Salidas del notebook (solo se suben resultados_spark/ y resultados_servicio/)
+resultados/
+resultados_*/
+!resultados_spark/
+!resultados_servicio/
+
+# Entorno
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
