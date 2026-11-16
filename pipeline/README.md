@@ -61,10 +61,11 @@ Usa el lago y el Parquet del paso 3, en una sola sesión de Spark. Con unas 200 
 ```powershell
 docker run --rm `
   -v "${PWD}:/repo" -v limon-datos:/repo/datos -w /repo `
-  limon-spark:1.0 python pipeline/medir_escalabilidad.py --modelo modelo --salida resultados_spark
+  limon-spark:1.0 python pipeline/medir_escalabilidad.py --modelo modelo --salida resultados_spark --nucleos-fisicos 4
 ```
 
 Opcional:
+- `--nucleos-fisicos 4` es el dato de Windows para el i7-4770 (4 físicos, 8 lógicos): solo agrega una línea en el gráfico de speedup y queda en la bitácora.
 - `--con-5000` agrega el volumen de 5,000 fotos (tarda bastante más).
 - Para registrar en el mismo `mlflow.db` del notebook, agregar `-v "D:\Proyectos\percepcion-limones\resultados:/resultados"` y `--mlflow sqlite:////resultados/mlflow.db`. Sin esto se crea `resultados_spark/mlflow.db` (no se sube).
 

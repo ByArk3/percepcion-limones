@@ -112,7 +112,7 @@ Puede tardar entre 15 y 40 minutos. No cierres Docker ni apagues la PC.
 ```powershell
 docker run --rm `
   -v "${PWD}:/repo" -v limon-datos:/repo/datos -w /repo `
-  limon-spark:1.0 python pipeline/medir_escalabilidad.py --modelo modelo --salida resultados_spark
+  limon-spark:1.0 python pipeline/medir_escalabilidad.py --modelo modelo --salida resultados_spark --nucleos-fisicos 4
 ```
 
 ## Paso 8. Subir resultados y mandarme los datos de la PC

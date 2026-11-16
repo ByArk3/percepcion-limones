@@ -67,6 +67,8 @@ def main():
     ap.add_argument("--volumen-speedup", type=int, default=1000)
     ap.add_argument("--particiones", default="1,2,4,8")
     ap.add_argument("--volumenes", default="100,500,1000")
+    ap.add_argument("--nucleos-fisicos", type=int, default=None,
+                    help="núcleos físicos de la PC (dato de Windows); solo se dibuja y se anota, no cambia nada")
     ap.add_argument("--con-5000", action="store_true", help="agrega el volumen de 5000 fotos (tarda bastante)")
     ap.add_argument("--mlflow", default="", help="URI de MLflow; por defecto sqlite:///<salida>/mlflow.db")
     a = ap.parse_args()
@@ -80,6 +82,8 @@ def main():
     N = a.nucleos
     log(f"{'nucleos Spark':20s}: local[{N}]")
     log(f"{'hilos torch/tarea':20s}: {a.hilos_torch} (también en el bucle secuencial)")
+    if a.nucleos_fisicos:
+        log(f"{'nucleos fisicos':20s}: {a.nucleos_fisicos} (dato de Windows; los {N} de Spark son lógicos)")
 
     spark = inf.crear_spark(N, a.memoria, a.lote_inferencia, nombre="limon_escalabilidad")
     inf.enviar_codigo(spark, a.modelo)
@@ -230,7 +234,10 @@ def main():
     ax.plot(xs, np.minimum(xs, N), "--", color="gray", label="ideal = mín(k, núcleos)")
     ax.plot(sp.particiones, sp.speedup, "o-", color="tab:green", label="Spark medido")
     ax.axhline(1, color="tab:red", lw=1, ls=":", label="secuencial (Python puro)")
-    ax.axvline(N, color="black", lw=1, alpha=0.6, label=f"núcleos reales = {N}")
+    ax.axvline(N, color="black", lw=1, alpha=0.6, label=f"núcleos lógicos = {N}")
+    if a.nucleos_fisicos and a.nucleos_fisicos != N:
+        ax.axvline(a.nucleos_fisicos, color="tab:blue", lw=1, ls="--", alpha=0.7,
+                   label=f"núcleos físicos = {a.nucleos_fisicos}")
     ax.set_xlabel("Particiones (k)"); ax.set_ylabel("Speedup vs secuencial")
     ax.set_title(f"Speedup con {V} fotos"); ax.set_xticks(ks); ax.legend(fontsize=8)
     fig.tight_layout(); fig.savefig(os.path.join(figuras, "spark_speedup.png"), dpi=150); plt.close(fig)
@@ -271,7 +278,7 @@ def main():
                 os.path.join(os.path.dirname(uri.replace("sqlite:///", "")) or ".", "mlruns_spark")))
         mlflow.set_experiment(nombre_exp)
         with mlflow.start_run(run_name=f"spark_lote_{a.lote}"):
-            mlflow.log_params(dict(nucleos=N, os_cpu_count=ent["os_cpu_count"],
+            mlflow.log_params(dict(nucleos=N, nucleos_fisicos=a.nucleos_fisicos, os_cpu_count=ent["os_cpu_count"],
                                    cpus_limite_docker=ent["cpus_limite_docker"], hilos_torch=a.hilos_torch,
                                    lote_inferencia=a.lote_inferencia, volumen_speedup=V, particiones=a.particiones,
                                    volumenes=",".join(map(str, vols)), fotos_distintas=len(base), lote=a.lote,
@@ -295,7 +302,8 @@ def main():
 
     spark.stop()
     log.titulo("Resumen")
-    log(f"Núcleos: os.cpu_count()={ent['os_cpu_count']}, límite Docker={ent['cpus_limite_docker']}, Spark local[{N}]")
+    log(f"Núcleos: os.cpu_count()={ent['os_cpu_count']}, límite Docker={ent['cpus_limite_docker']}, Spark local[{N}], "
+        f"físicos (Windows)={a.nucleos_fisicos or 'no indicado'}")
     mejor = sp.loc[sp.speedup.idxmax()]
     log(f"Mejor speedup: {mejor.speedup:.2f}x con {int(mejor.particiones)} particiones (ideal {int(mejor.ideal)})")
     log(f"H2 (variación 100 -> 1000 fotos): {var:+.1f} % -> "
