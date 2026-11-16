@@ -9,8 +9,8 @@ Comandos para **PowerShell** en Windows. Si una ruta es distinta en tu PC, cámb
 
 ## Paso 1. Conseguir `resultados.zip` de la corrida de Colab
 
-**Opción A (si ya lo tienes):** la celda 15.1 de la corrida del 13-nov descarga `resultados.zip` sola.
-Búscalo en `Descargas`. Sirve **solo** si es de esa misma corrida (la que dio F1 0.870 y SHA-256 `9d3411a7b4909e4d...`).
+**Opción A (si ya lo tienes):** la celda 15.1 descarga `resultados.zip` sola al terminar la corrida.
+Búscalo en `Descargas`. Usar el de la corrida del **16-nov** (la última; SHA-256 `8eec3d12ef05ec32...`), no el del 13-nov.
 
 **Opción B (si no lo tienes): volver a correr Colab**
 
@@ -21,15 +21,15 @@ Búscalo en `Descargas`. Sirve **solo** si es de esa misma corrida (la que dio F
 5. Esperar a que termine. Al final se descarga `resultados.zip`.
 6. Guardar el notebook con salidas: **Archivo → Descargar → Descargar .ipynb**.
 
-Ojo: una corrida nueva da **números nuevos**, que reemplazan a los del 13-nov.
+Ojo: una corrida nueva da **números nuevos**, que reemplazan a los de la corrida anterior.
 En ese caso, mándame el `.ipynb` nuevo para actualizar las cifras.
 
 ## Paso 2. Descomprimir y revisar el modelo
 
 ```powershell
 cd D:\Proyectos\percepcion-limones
-Expand-Archive -Path "$env:USERPROFILE\Downloads\resultados.zip" -DestinationPath resultados_colab_13nov
-dir resultados_colab_13nov\modelo
+Expand-Archive -Path "$env:USERPROFILE\Downloads\resultados.zip" -DestinationPath resultados_colab_16nov
+dir resultados_colab_16nov\modelo
 ```
 
 Tienen que aparecer 3 archivos: `resnet18_limon.pt` (~45 MB), `modelo_info.json` y `preprocesamiento.py`.
@@ -37,12 +37,12 @@ Tienen que aparecer 3 archivos: `resnet18_limon.pt` (~45 MB), `modelo_info.json`
 Revisar que sea el modelo correcto:
 
 ```powershell
-Select-String -Path resultados_colab_13nov\modelo\modelo_info.json -Pattern '"epocas"|"sha256"|"fecha"'
-Get-FileHash resultados_colab_13nov\modelo\resnet18_limon.pt -Algorithm SHA256
+Select-String -Path resultados_colab_16nov\modelo\modelo_info.json -Pattern '"epocas"|"sha256"|"fecha"'
+Get-FileHash resultados_colab_16nov\modelo\resnet18_limon.pt -Algorithm SHA256
 ```
 
 - `"epocas": 30`
-- El SHA-256 de `Get-FileHash` tiene que ser **igual** al `"sha256"` del JSON. Con la corrida del 13-nov empieza con `9D3411A7B4909E4D` (PowerShell lo muestra en mayúsculas).
+- El SHA-256 de `Get-FileHash` tiene que ser **igual** al `"sha256"` del JSON. Con la corrida del 16-nov empieza con `8EEC3D12EF05EC32` (PowerShell lo muestra en mayúsculas).
 
 Si no coinciden, **no sigas** y avísame.
 
@@ -51,9 +51,9 @@ Si no coinciden, **no sigas** y avísame.
 ```powershell
 cd D:\Proyectos\percepcion-limones\repo
 git pull
-Copy-Item ..\resultados_colab_13nov\modelo\modelo_info.json modelo\
-Copy-Item ..\resultados_colab_13nov\modelo\preprocesamiento.py modelo\
-Copy-Item ..\resultados_colab_13nov\modelo\resnet18_limon.pt modelo\
+Copy-Item ..\resultados_colab_16nov\modelo\modelo_info.json modelo\
+Copy-Item ..\resultados_colab_16nov\modelo\preprocesamiento.py modelo\
+Copy-Item ..\resultados_colab_16nov\modelo\resnet18_limon.pt modelo\
 git status
 ```
 
@@ -62,7 +62,7 @@ El `.pt` **no** debe salir (el `.gitignore` lo excluye). Si sale, no hagas commi
 
 ```powershell
 git add modelo\modelo_info.json modelo\preprocesamiento.py
-git commit -m "Modelo final de Colab (GPU T4, 13-nov): info y preprocesamiento"
+git commit -m "Modelo final de Colab (GPU T4, 16-nov): info y preprocesamiento"
 git push
 ```
 
@@ -71,14 +71,14 @@ git push
 1. Entrar a https://github.com/ByArk3/percepcion-limones
 2. A la derecha, **Releases → Create a new release** (o "Draft a new release").
 3. **Choose a tag:** escribir `modelo-v1` y elegir "Create new tag".
-4. **Release title:** `Modelo ResNet18 v1 (Colab GPU T4, 13-nov-2026)`
+4. **Release title:** `Modelo ResNet18 v1 (Colab GPU T4, 16-nov-2026)`
 5. **Descripción** (copiar y completar con tu SHA-256 del paso 2):
    ```
-   ResNet18 TorchScript, semilla 42, 30 épocas. Entrenado en Google Colab (GPU Tesla T4) el 13-nov-2026.
+   ResNet18 TorchScript, semilla 42, 30 épocas. Entrenado en Google Colab (GPU Tesla T4) el 16-nov-2026.
    SHA-256: <pegar aquí el SHA-256 completo>
    Va en la carpeta modelo/ junto a modelo_info.json y preprocesamiento.py.
    ```
-6. Arrastrar `D:\Proyectos\percepcion-limones\resultados_colab_13nov\modelo\resnet18_limon.pt` a la zona de archivos.
+6. Arrastrar `D:\Proyectos\percepcion-limones\resultados_colab_16nov\modelo\resnet18_limon.pt` a la zona de archivos.
 7. Esperar a que suba y dar **Publish release**.
 
 ## Paso 5. Construir la imagen de Spark
@@ -136,4 +136,4 @@ Pégame en el chat la salida de los dos últimos comandos y avísame que hiciste
 | Repositorio `modelo/` | `modelo_info.json`, `preprocesamiento.py` |
 | Release `modelo-v1` | `resnet18_limon.pt` |
 | Repositorio `resultados_spark/` | tablas, figuras y bitácoras reales de la PC |
-| Solo en la PC | fotos, `resultados_colab_13nov\`, volumen Docker `limon-datos` |
+| Solo en la PC | fotos, `resultados_colab_16nov\`, volumen Docker `limon-datos` |
