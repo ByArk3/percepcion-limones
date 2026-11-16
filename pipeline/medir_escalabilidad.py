@@ -56,7 +56,7 @@ def ajuste_lineal(n, t):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--lago", default="datos/lago")
-    ap.add_argument("--lote", default="2026-11-04")
+    ap.add_argument("--lote", default="2026-11-16")
     ap.add_argument("--modelo", default="modelo")
     ap.add_argument("--salida", default="resultados_spark")
     ap.add_argument("--parquet", default="datos/resultados_spark", help="Parquet que dejó job_batch.py")

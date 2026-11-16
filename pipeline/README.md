@@ -14,6 +14,24 @@ Corre en Docker porque Spark 4.0 necesita Java 17 o 21 y la PC tiene Java 23.
 
 La imagen **no** lleva fotos, modelo ni código: se montan con `-v` al correr.
 
+## 0. Forma rápida: un solo comando
+
+`correr_todo.ps1` hace los pasos 1 a 4 de abajo de una vez: revisa Docker, construye la imagen si no existe,
+revisa (o baja) el modelo y su SHA-256, revisa las fotos, corre el job, corre las mediciones y muestra un resumen.
+Si algo falla, se detiene y dice qué pasó.
+
+```powershell
+cd D:\Proyectos\percepcion-limones\repo
+git pull
+powershell -ExecutionPolicy Bypass -File .\pipeline\correr_todo.ps1
+```
+
+Opciones: `-Lote 2026-11-16` (fecha de la copia del dataset), `-Fotos "D:\...\etiquetado_final_agregarfotos"`,
+`-NucleosFisicos 4`, `-SoloMediciones` (si el job ya corrió) y `-Con5000` (agrega 5,000 fotos).
+Al final muestra los comandos para subir `resultados_spark/`.
+
+Los pasos 1 a 5 de abajo son lo mismo, comando por comando.
+
 ## 1. Antes de empezar (solo la primera vez)
 
 En la carpeta `modelo\` del repositorio tienen que estar:
@@ -75,7 +93,7 @@ Opcional:
 docker info --format "CPUs={{.NCPU}} Memoria={{.MemTotal}}"
 Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors
 git add resultados_spark
-git commit -m "Resultados reales de Spark (lote 2026-11-04)"
+git commit -m "Resultados reales de Spark (lote 2026-11-16)"
 git push
 ```
 

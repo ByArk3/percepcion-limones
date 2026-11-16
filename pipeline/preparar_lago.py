@@ -8,7 +8,7 @@ El código del celular sale del nombre del archivo (v_A26_601.jpg -> A26);
 si el nombre no sigue el patrón, va a celular=SIN_CODIGO.
 
 Uso (dentro del contenedor):
-    python pipeline/preparar_lago.py --fotos /datos/fotos --lago datos/lago --lote 2026-11-04
+    python pipeline/preparar_lago.py --fotos /datos/fotos --lago datos/lago --lote 2026-11-16
 """
 import argparse
 import os
@@ -78,6 +78,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--fotos", required=True, help="carpeta etiquetado_final_agregarfotos")
     ap.add_argument("--lago", default="datos/lago")
-    ap.add_argument("--lote", default="2026-11-04")
+    ap.add_argument("--lote", default="2026-11-16")
     a = ap.parse_args()
     armar_lago(a.fotos, a.lago, a.lote)

@@ -119,7 +119,7 @@ docker run --rm `
 
 ```powershell
 git add resultados_spark
-git commit -m "Resultados reales de Spark en la PC (lote 2026-11-04)"
+git commit -m "Resultados reales de Spark en la PC (lote 2026-11-16)"
 git push
 docker info --format "CPUs={{.NCPU}} Memoria={{.MemTotal}}"
 Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores, NumberOfLogicalProcessors
