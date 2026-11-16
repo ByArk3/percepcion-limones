@@ -1,0 +1,100 @@
+
+==============================================================================
+Mediciones de escalabilidad (sección 7.4) · Grupo 3
+==============================================================================
+Comando: pipeline/medir_escalabilidad.py --modelo modelo --salida resultados_spark --lote 2026-11-16 --nucleos-fisicos 4
+
+==============================================================================
+Entorno
+==============================================================================
+fecha               : 2026-11-16 21:52:57
+sistema             : Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36
+python              : 3.11.18
+java                : openjdk version "17.0.21" 2026-10-20
+pyspark             : 4.0.1
+torch               : 2.15.0+cpu
+torchvision         : 0.29.2+cpu
+numpy               : 2.3.5
+pandas              : 2.3.3
+opencv              : 5.0.0
+pillow              : 12.0.0
+pyarrow             : 20.0.0
+mlflow              : 3.18.0
+os_cpu_count        : 8
+cpus_afinidad       : 8
+cpus_limite_docker  : None
+memoria_gb          : 14.29
+modelo              : modelo/resnet18_limon.pt (44.9 MB)
+sha256 del .pt      : 8eec3d12ef05ec3286157fe2f8174f82b3b2d4ca237348b3576658e77dbf62ef
+sha256 en info      : 8eec3d12ef05ec3286157fe2f8174f82b3b2d4ca237348b3576658e77dbf62ef  -> coinciden
+epocas (info)       : 30
+clases (info)       : ['verde', 'pinton', 'maduro']
+nucleos Spark       : local[8]
+hilos torch/tarea   : 1 (también en el bucle secuencial)
+nucleos fisicos     : 4 (dato de Windows; los 8 de Spark son lógicos)
+Fotos distintas en el lago: 236
+Calentamiento (2 fotos, no se cuenta): 19.78 s
+
+==============================================================================
+a) Speedup con volumen fijo de 1000 fotos
+==============================================================================
+  Secuencial n= 1000:   362.99 s ( 363.0 ms/foto)
+  Spark n= 1000 k=1:   321.39 s ( 321.4 ms/foto), modelo cargado 1 veces
+  Spark n= 1000 k=2:   188.44 s ( 188.4 ms/foto), modelo cargado 2 veces
+  Spark n= 1000 k=4:   125.93 s ( 125.9 ms/foto), modelo cargado 4 veces
+  Spark n= 1000 k=8:   112.59 s ( 112.6 ms/foto), modelo cargado 8 veces
+           configuracion  particiones  tiempo_s  speedup  ideal  eficiencia
+Secuencial (Python puro)            1   362.991    1.000      1       1.000
+    Spark repartition(1)            1   321.394    1.129      1       1.129
+    Spark repartition(2)            2   188.444    1.926      2       0.963
+    Spark repartition(4)            4   125.927    2.883      4       0.721
+    Spark repartition(8)            8   112.586    3.224      8       0.403
+Speedup = tiempo secuencial / tiempo Spark. Ideal = mín(k, núcleos). La eficiencia es solo un dato (el criterio de eficiencia >= 0.8 fue anulado; ver CLAUDE.md, lógica acordada 5).
+
+==============================================================================
+b) Escalamiento de volumen con repartition(8)
+==============================================================================
+  Spark n=  100 k=8:    15.71 s ( 157.1 ms/foto), modelo cargado 8 veces
+  Spark n=  500 k=8:    53.31 s ( 106.6 ms/foto), modelo cargado 8 veces
+Variación del tiempo por foto de 100 a 1000 fotos: -28.3 % (criterio H2: |variación| < 15 %) -> NO CUMPLE
+ fotos  tiempo_s  ms_por_foto  variacion_vs_100_pct
+   100    15.708      157.076                 0.000
+   500    53.310      106.619               -32.122
+  1000   112.586      112.586               -28.324
+
+==============================================================================
+c) Punto de cruce: secuencial vs Spark
+==============================================================================
+  Secuencial n=  100:    37.27 s ( 372.7 ms/foto)
+  Secuencial n=  500:   162.90 s ( 325.8 ms/foto)
+Ajuste lineal secuencial: -6.14 s fijos + 363.5 ms/foto
+Ajuste lineal Spark     : 2.89 s fijos + 108.1 ms/foto
+Spark tiene más costo fijo (2.89 s vs -6.14 s) pero menos costo por foto; según el ajuste empieza a ganar desde unas 35 fotos.
+ fotos  secuencial_s  spark_s  gana  n_cruce_estimado
+   100        37.268   15.708 Spark            35.342
+   500       162.896   53.310 Spark            35.342
+  1000       362.991  112.586 Spark            35.342
+
+==============================================================================
+d) Parquet vs CSV
+==============================================================================
+formato  filas  bytes  leer_1_columna_s   kb
+Parquet    236  62752            0.2980 61.3
+    CSV    236  38937            0.2353 38.0
+Lectura de 1 columna: mediana de 5 repeticiones de select(prob_maduro).agg(sum).collect().
+
+Figuras guardadas en resultados_spark/figuras
+
+==============================================================================
+e) Registro en MLflow
+==============================================================================
+Corrida registrada en sqlite:////repo/resultados_spark/mlflow.db (experimento 'spark_pipeline').
+
+==============================================================================
+Resumen
+==============================================================================
+Núcleos: os.cpu_count()=8, límite Docker=None, Spark local[8], físicos (Windows)=4
+Mejor speedup: 3.22x con 8 particiones (ideal 8)
+H2 (variación 100 -> 1000 fotos): -28.3 % -> NO CUMPLE
+Spark tiene más costo fijo (2.89 s vs -6.14 s) pero menos costo por foto; según el ajuste empieza a ganar desde unas 35 fotos.
+Archivos para subir: resultados_spark/ (tablas, figuras, logs). No subir datos/ ni mlflow.db.

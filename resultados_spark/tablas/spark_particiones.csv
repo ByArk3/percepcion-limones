@@ -1,0 +1,3 @@
+configuracion,particiones,cargas_modelo,carga_total_s,tiempo_s,ms_por_foto
+sin ajustar (binaryFile por defecto),12,12,17.78,32.406,137.3
+coalesce(8),8,8,21.969,32.278,136.8

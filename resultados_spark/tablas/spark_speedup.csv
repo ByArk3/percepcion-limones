@@ -1,0 +1,6 @@
+configuracion,particiones,tiempo_s,speedup,ideal,eficiencia
+Secuencial (Python puro),1,362.991,1.0,1,1.0
+Spark repartition(1),1,321.394,1.129,1,1.129
+Spark repartition(2),2,188.444,1.926,2,0.963
+Spark repartition(4),4,125.927,2.883,4,0.721
+Spark repartition(8),8,112.586,3.224,8,0.403

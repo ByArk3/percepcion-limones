@@ -1,0 +1,5 @@
+== Physical Plan ==
+*(1) ColumnarToRow
++- FileScan parquet [path#140,celular#141,clase#142,md5#143,prob_verde#144,prob_pinton#145,prob_maduro#146,lote#147,prediccion#148] Batched: true, DataFilters: [], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/repo/datos/resultados_spark], PartitionFilters: [isnotnull(lote#147), isnotnull(prediccion#148), (lote#147 = 2026-11-16), (prediccion#148 = maduro)], PushedFilters: [], ReadSchema: struct<path:string,celular:string,clase:string,md5:string,prob_verde:double,prob_pinton:double,pr...
+
+

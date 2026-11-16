@@ -1,0 +1,121 @@
+
+==============================================================================
+Job batch de Spark · madurez del limón sutil · Grupo 3
+==============================================================================
+Comando: pipeline/job_batch.py --fotos /datos/fotos --modelo modelo --salida resultados_spark --lote 2026-11-16
+
+==============================================================================
+Entorno
+==============================================================================
+fecha               : 2026-11-16 21:47:43
+sistema             : Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36
+python              : 3.11.18
+java                : openjdk version "17.0.21" 2026-10-20
+pyspark             : 4.0.1
+torch               : 2.15.0+cpu
+torchvision         : 0.29.2+cpu
+numpy               : 2.3.5
+pandas              : 2.3.3
+opencv              : 5.0.0
+pillow              : 12.0.0
+pyarrow             : 20.0.0
+mlflow              : 3.18.0
+os_cpu_count        : 8
+cpus_afinidad       : 8
+cpus_limite_docker  : None
+memoria_gb          : 14.29
+modelo              : modelo/resnet18_limon.pt (44.9 MB)
+sha256 del .pt      : 8eec3d12ef05ec3286157fe2f8174f82b3b2d4ca237348b3576658e77dbf62ef
+sha256 en info      : 8eec3d12ef05ec3286157fe2f8174f82b3b2d4ca237348b3576658e77dbf62ef  -> coinciden
+epocas (info)       : 30
+clases (info)       : ['verde', 'pinton', 'maduro']
+nucleos Spark       : local[8]
+hilos torch/tarea   : 1
+lote inferencia     : 16
+
+==============================================================================
+1. Data lake (preparar_lago.py)
+==============================================================================
+Lago: datos/lago/lote=2026-11-16
+Fotos copiadas: 236 (501.7 MB) | ignoradas: 9
+Fotos por celular y clase (copiadas al lago):
+clase    verde  pinton  maduro
+celular                       
+A26         63      34      51
+FRANCO      23       0      23
+LEONCIO      2      10       4
+RN10        16       0      10
+Ignoradas por motivo:
+motivo
+carpeta no es verde_/pinton_/maduro_    9
+
+==============================================================================
+2. Lectura con binaryFile
+==============================================================================
+Spark 4.0.1
+Esquema del DataFrame (printSchema):
+root
+ |-- path: string (nullable = true)
+ |-- modificationTime: timestamp (nullable = true)
+ |-- length: long (nullable = true)
+ |-- content: binary (nullable = true)
+ |-- lote: string (nullable = true)
+ |-- celular: string (nullable = true)
+ |-- clase: string (nullable = true)
+
+Fotos por celular y clase (leído por Spark, sin decodificar imágenes):
+clase    verde  pinton  maduro  total
+celular                              
+A26         63      34      51    148
+FRANCO      23       0      23     46
+LEONCIO      2      10       4     16
+RN10        16       0      10     26
+
+==============================================================================
+3-4. Inferencia con mapInPandas (modelo una vez por partición)
+==============================================================================
+Calentamiento (1 foto, no se cuenta): 11.04 s
+Sin ajustar        : 12 particiones, 236 fotos, 45.87 s (194.4 ms/foto) | modelo cargado 12 veces, 17.78 s en total de carga
+coalesce(8)        : 8 particiones, 236 fotos, 32.28 s (136.8 ms/foto) | modelo cargado 8 veces, 21.97 s en total de carga
+Sin ajustar (2.a)  : 12 particiones, 236 fotos, 32.41 s (137.3 ms/foto) | modelo cargado 12 veces, 25.44 s en total de carga
+coalesce(8) (2.a)  : 8 particiones, 236 fotos, 34.21 s (144.9 ms/foto) | modelo cargado 8 veces, 20.75 s en total de carga
+Se toma el menor de las 2 mediciones: sin ajustar 32.41 s, coalesce 32.28 s
+                       configuracion  particiones  cargas_modelo  carga_total_s  tiempo_s  ms_por_foto
+sin ajustar (binaryFile por defecto)           12             12         17.780    32.406        137.3
+                         coalesce(8)            8              8         21.969    32.278        136.8
+Fotos que no se pudieron leer: 0
+
+==============================================================================
+5. Verificación de coherencia (Spark vs bucle secuencial de Python)
+==============================================================================
+Fotos comparadas: 236 | diferencia máxima de probabilidad: 1.19e-07 (tolerancia 1e-05) -> CUMPLE
+Misma predicción: 236/236 | MD5 iguales: sí
+Tiempo del bucle secuencial (dato): 86.50 s (366.5 ms/foto)
+
+==============================================================================
+6. Escritura en Parquet particionado por predicción
+==============================================================================
+Parquet escrito en datos/resultados_spark/lote=2026-11-16 en 5.33 s
+
+Consulta de ejemplo (consumidor): fotos por celular y predicción, leyendo el Parquet
+prediccion  maduro  pinton  verde
+celular                          
+A26             46      41     61
+FRANCO          22       1     23
+LEONCIO          2      12      2
+RN10            10       2     14
+Nota: esto NO es una métrica de evaluación (el lote incluye fotos de entrenamiento).
+
+Plan físico de la consulta prediccion = 'maduro' (debe mostrar PartitionFilters):
+== Physical Plan ==
+*(1) ColumnarToRow
++- FileScan parquet [path#140,celular#141,clase#142,md5#143,prob_verde#144,prob_pinton#145,prob_maduro#146,lote#147,prediccion#148] Batched: true, DataFilters: [], Format: Parquet, Location: InMemoryFileIndex(1 paths)[file:/repo/datos/resultados_spark], PartitionFilters: [isnotnull(lote#147), isnotnull(prediccion#148), (lote#147 = 2026-11-16), (prediccion#148 = maduro)], PushedFilters: [], ReadSchema: struct<path:string,celular:string,clase:string,md5:string,prob_verde:double,prob_pinton:double,pr...
+
+
+
+PartitionFilters en el plan: sí
+
+==============================================================================
+Fin del job batch
+==============================================================================
+Siguiente paso: python pipeline/medir_escalabilidad.py (mediciones de la sección 7.4)
