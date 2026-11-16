@@ -1,0 +1,138 @@
+:root {
+  --fondo: #0b1410;
+  --fondo2: #0f1d17;
+  --tarjeta: #13241c;
+  --tarjeta2: #182d23;
+  --borde: #24402f;
+  --texto: #e8f1ea;
+  --suave: #9db3a3;
+  --acento: #8bd36b;
+  --acento2: #f2d14b;
+  --verde: #4caf50;
+  --pinton: #c6c23a;
+  --maduro: #f5c518;
+  --error: #ef6b5e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: radial-gradient(1200px 600px at 50% -10%, #17301f 0%, var(--fondo) 55%) fixed, var(--fondo);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.contenedor { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; }
+
+/* ------------------------------------------------ cabecera */
+.heroe {
+  display: flex; gap: 16px; align-items: center; justify-content: space-between;
+  padding: 26px 26px; border-radius: 18px;
+  background: linear-gradient(120deg, #1f6b35 0%, #5aa02c 55%, #d4b52a 100%);
+  box-shadow: 0 10px 40px rgba(139, 211, 107, .18);
+}
+.insignia {
+  display: inline-block; font-size: .66rem; font-weight: 600; letter-spacing: .08em;
+  padding: 4px 10px; border-radius: 999px; background: rgba(0, 0, 0, .18); border: 1px solid rgba(255, 255, 255, .35);
+}
+.heroe h1 { margin: 10px 0 6px; font-size: 1.8rem; line-height: 1.15; }
+.heroe p { margin: 0; font-size: .92rem; opacity: .95; }
+.heroe-icono { width: 76px; height: 76px; flex: none; }
+
+/* ------------------------------------------------ métricas */
+.metricas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+.metrica {
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
+  padding: 14px 8px; text-align: center;
+}
+.metrica b { display: block; font-size: 1.35rem; color: var(--acento); font-variant-numeric: tabular-nums; }
+.metrica span { font-size: .7rem; color: var(--suave); }
+.nota-metricas { font-size: .72rem; color: var(--suave); margin: 6px 2px 0; }
+
+/* ------------------------------------------------ pestañas */
+.pestanas { display: flex; gap: 6px; margin-top: 18px; border-bottom: 1px solid var(--borde); overflow-x: auto; }
+.pestana {
+  border: 0; background: none; color: var(--suave); font: inherit; font-size: .88rem;
+  padding: 10px 10px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
+}
+.pestana.activa { color: var(--texto); border-bottom-color: var(--acento); font-weight: 600; }
+
+main { padding-top: 18px; }
+.panel { display: none; }
+.panel.activo { display: block; }
+.oculto { display: none !important; }
+
+.rotulo { font-size: .85rem; font-weight: 600; margin: 0 0 8px; }
+.rotulo.espacio { margin-top: 18px; }
+
+/* ------------------------------------------------ zona para subir */
+.zona {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  min-height: 170px; padding: 18px; border-radius: 12px; cursor: pointer; text-align: center;
+  background: var(--fondo2); border: 1.5px dashed var(--borde); color: var(--suave); font-size: .88rem;
+}
+.zona strong { color: var(--texto); }
+.zona:hover, .zona.encima { border-color: var(--acento); background: var(--tarjeta); }
+.previa { max-height: 220px; max-width: 100%; border-radius: 10px; }
+.contador { text-align: right; font-size: .75rem; color: var(--suave); margin: 6px 0 12px; }
+
+.botones { display: flex; gap: 10px; }
+.boton {
+  font: inherit; font-size: .88rem; font-weight: 500; padding: 9px 26px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--borde);
+}
+.boton.primario {
+  color: #0b1410; border-color: transparent;
+  background: linear-gradient(120deg, var(--acento), var(--acento2));
+  box-shadow: 0 6px 20px rgba(139, 211, 107, .25);
+}
+.boton.secundario { color: var(--texto); background: var(--tarjeta); }
+.boton:hover { filter: brightness(1.08); }
+.boton:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+.mensaje { min-height: 1.4em; font-size: .88rem; color: var(--suave); }
+.mensaje.mal { color: var(--error); }
+
+/* ------------------------------------------------ resultados */
+.tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 14px; padding: 18px; }
+.tarjeta p { font-size: .9rem; }
+.tarjeta .clase { margin: 0 0 12px; font-size: 2.1rem; font-weight: 700; line-height: 1.1; }
+.barra { display: grid; grid-template-columns: 70px 1fr 64px; gap: 10px; align-items: center; margin: 7px 0; font-size: .88rem; }
+.riel { background: var(--fondo2); border-radius: 6px; height: 12px; overflow: hidden; }
+.relleno { height: 100%; border-radius: 6px; }
+.valor { text-align: right; font-variant-numeric: tabular-nums; }
+.detalle { color: var(--suave); font-size: .78rem; margin: 10px 0; }
+
+.c-verde { color: var(--verde); } .f-verde { background: var(--verde); }
+.c-pinton { color: var(--pinton); } .f-pinton { background: var(--pinton); }
+.c-maduro { color: var(--maduro); } .f-maduro { background: var(--maduro); }
+.c-error { color: var(--error); } .f-error { background: var(--error); }
+
+.resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+.cifra { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 12px; text-align: center; }
+.cifra b { display: block; font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.cifra span { color: var(--suave); font-size: .72rem; }
+
+.fila-acciones { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+.fila-acciones .detalle { flex: 1 1 300px; }
+
+.tabla-cont { overflow-x: auto; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--borde); text-align: left; white-space: nowrap; }
+th { color: var(--suave); font-weight: 500; background: var(--tarjeta2); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+
+.pie { margin-top: 26px; font-size: .74rem; color: var(--suave); text-align: center; }
+.pie .ok { color: var(--acento); font-weight: 600; }
+.pie .mal { color: var(--error); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .heroe { padding: 20px; }
+  .heroe h1 { font-size: 1.4rem; }
+  .heroe-icono { width: 56px; height: 56px; }
+  .metricas { grid-template-columns: repeat(2, 1fr); }
+}

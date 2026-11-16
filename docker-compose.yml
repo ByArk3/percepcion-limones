@@ -1,0 +1,64 @@
+# Servicio de inferencia (sección 8.1): frontend + backend + base de datos, cada uno en su contenedor.
+#
+#   copy .env.ejemplo .env          (solo la primera vez)
+#   docker compose up -d --build
+#   abrir http://localhost:8080
+#
+# Antes: modelo/resnet18_limon.pt descargado de la Release modelo-v1 (ver modelo/README.md).
+# El pipeline de Spark (sección 7) va aparte: pipeline/README.md. Sus resultados en Parquet
+# quedan en el volumen limon-datos, que el backend lee para la pestaña "Lotes de Spark".
+
+services:
+  db:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-limon}
+      POSTGRES_USER: ${POSTGRES_USER:-limon}
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Falta POSTGRES_PASSWORD (copia .env.ejemplo a .env)}"
+    volumes:
+      - limon-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: servicio/backend/Dockerfile
+    image: limon-backend:1.0
+    environment:
+      URL_DB: postgresql://${POSTGRES_USER:-limon}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-limon}
+      DIR_MODELO: /modelo
+      VERSION_MODELO: modelo-v1
+      DIR_PARQUET_SPARK: /datos/resultados_spark
+    volumes:
+      - ./modelo:/modelo:ro                       # el .pt viene de la Release (no está en git)
+      - limon-datos:/datos:ro                     # Parquet que deja el job de Spark
+      - ./pruebas:/pruebas:ro                     # scripts de evidencia (latencia, fotos nuevas)
+      - ./resultados_servicio:/resultados_servicio
+    ports:
+      - "8000:8000"                               # acceso directo a la API (curl y medición de latencia)
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: servicio/frontend/Dockerfile
+    image: limon-frontend:1.0
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  limon-pg:
+    name: limon-pg
+  limon-datos:
+    name: limon-datos                             # el mismo volumen que usa pipeline/ (Spark)

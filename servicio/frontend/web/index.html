@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detector de madurez del limón</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <div class="contenedor">
+
+    <!-- ======================= Cabecera ======================= -->
+    <header class="heroe">
+      <div class="heroe-texto">
+        <span class="insignia">PERCEPCIÓN COMPUTACIONAL · UPAO 2026-II · GRUPO 3</span>
+        <h1>Detector de madurez del limón sutil</h1>
+        <p>Sube una foto de un limón sutil (o un .zip con varias) y el sistema dirá si está verde, pintón o maduro.</p>
+      </div>
+      <svg class="heroe-icono" viewBox="0 0 64 64" aria-hidden="true">
+        <ellipse cx="32" cy="34" rx="22" ry="18" fill="rgba(255,255,255,.18)" stroke="#fff" stroke-width="3"/>
+        <path d="M14 34 Q32 22 50 34" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M32 16 Q36 8 44 8 Q42 15 34 17" fill="#fff"/>
+      </svg>
+    </header>
+
+    <!-- ======================= Métricas del modelo ======================= -->
+    <section class="metricas" id="metricas">
+      <div class="metrica"><b id="m-exactitud">-</b><span>de aciertos (exactitud)</span></div>
+      <div class="metrica"><b id="m-f1">-</b><span>F1 macro</span></div>
+      <div class="metrica"><b id="m-recall">-</b><span>recall Maduro</span></div>
+      <div class="metrica"><b id="m-fotos">-</b><span>fotos de entrenamiento</span></div>
+    </section>
+    <p class="nota-metricas" id="nota-metricas">Cargando datos del modelo...</p>
+
+    <!-- ======================= Pestañas ======================= -->
+    <nav class="pestanas">
+      <button class="pestana activa" data-panel="analizar">Analizar</button>
+      <button class="pestana" data-panel="historial">Historial</button>
+      <button class="pestana" data-panel="lotes">Lotes de Spark</button>
+      <button class="pestana" data-panel="sobre">Sobre el modelo</button>
+    </nav>
+
+    <main>
+      <!-- ======================= Analizar ======================= -->
+      <section id="analizar" class="panel activo">
+        <p class="rotulo">Foto del limón o .zip con fotos</p>
+        <label id="zona" class="zona" for="entrada">
+          <input id="entrada" type="file" accept=".jpg,.jpeg,.png,.zip" hidden>
+          <img id="previa" class="previa oculto" alt="Vista previa">
+          <span id="zona-texto"><strong>Arrastra aquí una foto o un .zip</strong><br>o haz clic para elegir (.jpg, .jpeg, .png o .zip)</span>
+        </label>
+        <p class="contador" id="contador">Ningún archivo elegido</p>
+        <div class="botones">
+          <button id="analizar-btn" class="boton primario" disabled>Analizar</button>
+          <button id="limpiar-btn" class="boton secundario">Limpiar</button>
+        </div>
+        <p id="mensaje" class="mensaje"></p>
+
+        <div id="resultado-foto" class="tarjeta oculto">
+          <p class="rotulo">Resultado</p>
+          <p id="clase" class="clase"></p>
+          <div id="barras"></div>
+          <p id="detalle" class="detalle"></p>
+        </div>
+
+        <div id="resultado-zip" class="oculto">
+          <div id="resumen-zip" class="resumen"></div>
+          <div class="fila-acciones">
+            <p id="detalle-zip" class="detalle"></p>
+            <button id="descargar" class="boton secundario">Descargar tabla (CSV)</button>
+          </div>
+          <div class="tabla-cont"><table id="tabla-zip"></table></div>
+        </div>
+      </section>
+
+      <!-- ======================= Historial ======================= -->
+      <section id="historial" class="panel">
+        <div class="fila-acciones">
+          <p class="detalle">Cada predicción queda guardada en PostgreSQL con el SHA-256 del modelo que la hizo. La foto no se guarda, solo su huella MD5.</p>
+          <button id="recargar-historial" class="boton secundario">Actualizar</button>
+        </div>
+        <div id="resumen-historial" class="resumen"></div>
+        <div class="tabla-cont"><table id="tabla-historial"></table></div>
+      </section>
+
+      <!-- ======================= Lotes de Spark ======================= -->
+      <section id="lotes" class="panel">
+        <div class="fila-acciones">
+          <p class="detalle">Resultados del pipeline batch de Spark (pipeline/job_batch.py). El botón copia a PostgreSQL el Parquet que dejó Spark.</p>
+          <button id="sincronizar" class="boton primario">Cargar resultados de Spark</button>
+        </div>
+        <p id="mensaje-lotes" class="mensaje"></p>
+        <div class="tabla-cont"><table id="tabla-lotes"></table></div>
+        <p class="rotulo espacio">Fotos por celular y predicción</p>
+        <div class="tabla-cont"><table id="tabla-lotes-detalle"></table></div>
+      </section>
+
+      <!-- ======================= Sobre el modelo ======================= -->
+      <section id="sobre" class="panel">
+        <div class="tarjeta">
+          <p class="rotulo">Qué hace</p>
+          <p>Clasifica la madurez del limón sutil (<i>Citrus aurantifolia</i>) según el porcentaje de cáscara amarilla
+            (NTP 011.006 y criterio del equipo): <b class="c-verde">verde</b> menos de 10 %,
+            <b class="c-pinton">pintón</b> de 10 a 30 % y <b class="c-maduro">maduro</b> más de 30 %.
+            Solo limón sutil; no detecta defectos ni otras especies.</p>
+          <p class="rotulo espacio">Cómo lo hace</p>
+          <p id="sobre-pre">-</p>
+          <p class="rotulo espacio">Modelo desplegado</p>
+          <div class="tabla-cont"><table id="tabla-modelo"></table></div>
+          <p class="rotulo espacio">Arquitectura del sistema</p>
+          <p>Página web (nginx) &rarr; API FastAPI con la ResNet18 en PyTorch (CPU) &rarr; PostgreSQL con el historial.
+            Los lotes grandes por turno pasan por Apache Spark (data lake &rarr; binaryFile &rarr; mapInPandas &rarr; Parquet)
+            y se muestran en la pestaña Lotes de Spark. Todo corre en contenedores Docker.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pie">
+      <span id="estado">Conectando con el servicio...</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

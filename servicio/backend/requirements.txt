@@ -1,0 +1,13 @@
+# Versiones exactas. PyTorch CPU desde download.pytorch.org (sin CUDA). Sin TensorFlow.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.15.0+cpu
+torchvision==0.29.2+cpu
+numpy==2.3.5
+pandas==2.3.3
+pyarrow==20.0.0
+opencv-python-headless==5.0.0.93
+pillow==12.0.0
+fastapi==0.163.1
+uvicorn==0.54.0
+python-multipart==0.0.34
+psycopg[binary]==3.3.9
