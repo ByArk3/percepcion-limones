@@ -38,6 +38,7 @@ percepcion-limones/
 ├── pruebas/                      evidencias de la sección 8.1 (latencia, fotos nuevas)
 ├── resultados_spark/             resultados reales de Spark (los sube Franco desde su PC)
 ├── resultados_servicio/          resultados reales del servicio (latencia, fotos nuevas)
+├── docs/resultados_para_informe.md   todas las cifras reales y cómo interpretarlas (para redactar el informe)
 ├── GUIA_MODELO_COLAB_A_PC.md     guía paso a paso usada en la PC
 └── CLAUDE.md                     guía de trabajo del equipo
 ```
@@ -66,7 +67,7 @@ El SHA-256 tiene que ser `8eec3d12ef05ec3286157fe2f8174f82b3b2d4ca237348b3576658
 | Parte | Sección | Estado |
 |---|---|---|
 | Entrenamiento y evaluación (Colab, 16-nov) | 4 a 6 | Hecho |
-| Pipeline de Spark en Docker | 7 | Código listo; mediciones reales en la PC en curso |
+| Pipeline de Spark en Docker | 7 | Hecho en la PC el 16-nov (ver `docs/resultados_para_informe.md`) |
 | Servicio (web + API + PostgreSQL) | 8.1 | Código listo; latencia real pendiente en la PC |
 | MLflow: comparación y registro | 8.2, 8.3 | Pendiente |
 | Reproducibilidad (este README completo) | 8.4, 11 | Pendiente |
