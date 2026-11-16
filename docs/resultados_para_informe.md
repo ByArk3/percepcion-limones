@@ -13,7 +13,8 @@
 | Modelo desplegado | `modelo/modelo_info.json` y Release `modelo-v1` |
 | Spark, bitácoras completas (sección 7) | `resultados_spark/log_job_batch.txt`, `resultados_spark/log_medir_escalabilidad.txt` |
 | Spark, tablas | `resultados_spark/tablas/*.csv` |
-| Spark, figuras | `resultados_spark/figuras/spark_speedup.png`, `spark_volumen.png`, `spark_cruce.png` |
+| Spark, figuras | `resultados_spark/figuras/spark_speedup.png`, `spark_volumen.png`, `spark_cruce.png` (revisadas: coinciden con las tablas) |
+| Spark, salida de consola completa | `resultados_spark/consola_correr_todo_2026-11-16.txt` |
 | Spark, plan con `PartitionFilters` | `resultados_spark/plan_partition_filters.txt` |
 | Diagrama del sistema (7.2) | `pipeline/README.md` (sección 7) y `README.md` (arquitectura completa) |
 | Servicio (8.1) | `servicio/README.md`; resultados reales en `resultados_servicio/` (**PENDIENTE**) |
@@ -67,7 +68,8 @@
 ### 4.1 Data lake y lectura (7.3)
 
 - 236 fotos copiadas al lago (501.7 MB) en `lote=2026-11-16/celular=XXX/clase=YYY/`; 9 archivos ignorados por estar
-  fuera de carpetas `verde_*`, `pinton_*`, `maduro_*`.
+  fuera de carpetas `verde_*`, `pinton_*`, `maduro_*`: son los `registro_<integrante>_<fecha>.csv` del etiquetado
+  (ninguna foto quedó fuera). Lista en `resultados_spark/tablas/lago_ignoradas.csv`.
 - Esquema de `binaryFile`: `path`, `modificationTime`, `length`, `content`, `lote`, `celular`, `clase`
   (las 3 últimas salen de las carpetas `clave=valor`).
 - Fotos por celular y clase leídas por Spark sin decodificar imágenes:
