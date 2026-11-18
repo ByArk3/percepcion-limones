@@ -69,6 +69,8 @@ def main():
     ap.add_argument("--volumenes", default="100,500,1000")
     ap.add_argument("--nucleos-fisicos", type=int, default=None,
                     help="núcleos físicos de la PC (dato de Windows); solo se dibuja y se anota, no cambia nada")
+    ap.add_argument("--secuencial-por-lotes", action="store_true",
+                    help="el bucle secuencial también clasifica en lotes de --lote-inferencia (comparación solo del paralelismo)")
     ap.add_argument("--con-5000", action="store_true", help="agrega el volumen de 5000 fotos (tarda bastante)")
     ap.add_argument("--mlflow", default="", help="URI de MLflow; por defecto sqlite:///<salida>/mlflow.db")
     a = ap.parse_args()
@@ -82,6 +84,8 @@ def main():
     N = a.nucleos
     log(f"{'nucleos Spark':20s}: local[{N}]")
     log(f"{'hilos torch/tarea':20s}: {a.hilos_torch} (también en el bucle secuencial)")
+    log(f"{'secuencial':20s}: " + (f"por lotes de {a.lote_inferencia} (igual que Spark)" if a.secuencial_por_lotes
+                                   else "de a 1 foto (Spark usa lotes de %d)" % a.lote_inferencia))
     if a.nucleos_fisicos:
         log(f"{'nucleos fisicos':20s}: {a.nucleos_fisicos} (dato de Windows; los {N} de Spark son lógicos)")
 
@@ -112,7 +116,8 @@ def main():
     def seq_t(n):
         if ("seq", n, 1) not in medidas:
             tab = repetir(base, n)
-            _, t = inf.secuencial([inf.ruta_local(p) for p in tab.path], tab, a.modelo, a.hilos_torch)
+            _, t = inf.secuencial([inf.ruta_local(p) for p in tab.path], tab, a.modelo, a.hilos_torch,
+                                  lote=a.lote_inferencia if a.secuencial_por_lotes else 1)
             medidas[("seq", n, 1)] = t
             log(f"  Secuencial n={n:5d}: {t:8.2f} s ({1000 * t / n:6.1f} ms/foto)")
         return medidas[("seq", n, 1)]
@@ -278,7 +283,8 @@ def main():
                 os.path.join(os.path.dirname(uri.replace("sqlite:///", "")) or ".", "mlruns_spark")))
         mlflow.set_experiment(nombre_exp)
         with mlflow.start_run(run_name=f"spark_lote_{a.lote}"):
-            mlflow.log_params(dict(nucleos=N, nucleos_fisicos=a.nucleos_fisicos, os_cpu_count=ent["os_cpu_count"],
+            mlflow.log_params(dict(nucleos=N, nucleos_fisicos=a.nucleos_fisicos,
+                                   secuencial_por_lotes=a.secuencial_por_lotes, os_cpu_count=ent["os_cpu_count"],
                                    cpus_limite_docker=ent["cpus_limite_docker"], hilos_torch=a.hilos_torch,
                                    lote_inferencia=a.lote_inferencia, volumen_speedup=V, particiones=a.particiones,
                                    volumenes=",".join(map(str, vols)), fotos_distintas=len(base), lote=a.lote,

@@ -138,6 +138,9 @@ flowchart LR
 - Antes de medir se hace un calentamiento que no se cuenta (arranque de los procesos de Python de Spark). En el paso 3 las dos configuraciones se miden dos veces, alternadas, y se toma la menor: en la prueba, la primera corrida salía casi el doble de lenta solo por ir primera.
 - Para llegar a 1,000 fotos se repiten las rutas. En las mediciones del paso 7 la lista de fotos sale de binaryFile y la función de partición lee los bytes desde la ruta. Así `repartition(k)` solo reparte rutas y no copia megabytes de imágenes entre particiones. En el job (paso 4) se usan los bytes de la columna `content`.
 - Si binaryFile ya crea menos particiones que núcleos, `coalesce` no cambia nada y la bitácora lo dice.
+- El bucle secuencial clasifica **de a 1 foto** y la UDF de Spark **en lotes de 16**; parte del speedup viene de eso.
+  Para comparar solo el paralelismo: `medir_escalabilidad.py --secuencial-por-lotes` (o `correr_todo.ps1 -SoloMediciones -SecuencialPorLotes`).
+  La corrida del 16-nov se hizo sin esta opción.
 
 ## 9. Qué se probó en la nube (no son cifras del informe)
 

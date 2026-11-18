@@ -9,6 +9,7 @@
 #   -NucleosFisicos 4                               dato de Windows (i7-4770: 4 fisicos, 8 logicos)
 #   -SoloMediciones                                 no repite el job (si ya corrio antes)
 #   -Con5000                                        agrega el volumen de 5000 fotos (tarda mas)
+#   -SecuencialPorLotes                             el bucle secuencial tambien usa lotes de 16 (compara solo el paralelismo)
 #
 # Que hace:
 #   1. Revisa que Docker este encendido y que exista la imagen limon-spark:1.0 (si no, la construye).
@@ -25,7 +26,8 @@ param(
     [string]$Lote = "2026-11-16",
     [int]$NucleosFisicos = 4,
     [switch]$SoloMediciones,
-    [switch]$Con5000
+    [switch]$Con5000,
+    [switch]$SecuencialPorLotes
 )
 
 $ErrorActionPreference = "Continue"
@@ -117,6 +119,7 @@ Paso "5. Mediciones de escalabilidad (medir_escalabilidad.py)"
 Write-Host "Esto tarda entre 15 y 40 minutos (mas con -Con5000). No cierres esta ventana."
 $extra = @()
 if ($Con5000) { $extra += "--con-5000" }
+if ($SecuencialPorLotes) { $extra += "--secuencial-por-lotes" }
 $t0 = Get-Date
 docker run --rm `
     -v "${Repo}:/repo" -v limon-datos:/repo/datos -w /repo `

@@ -12,6 +12,8 @@ resultados/
 resultados_*/
 !resultados_spark/
 !resultados_servicio/
+!resultados_mlflow/
+!resultados_perfil/
 
 # Entorno
 .venv/

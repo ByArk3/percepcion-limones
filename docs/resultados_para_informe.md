@@ -215,3 +215,61 @@ Código listo y probado en la nube con fotos sintéticas (ver `servicio/README.m
 
 Criterio de promoción acordado (Tarea D): cumplir las 7 metas **y** p95 < 150 ms en el contenedor →
 alias `produccion`; si no, `candidato`. Hoy ya se sabe que falla F1 Pintón (0.743 < 0.75) → saldría **candidato**.
+
+---
+
+## 6. MLflow (secciones 8.2 y 8.3) · `mlflow.db` de la corrida del 16-nov
+
+Contenido real del `mlflow.db` (bajado del Drive, carpeta `modelo`):
+
+| Corrida | Parámetros | test F1 macro | test recall Maduro | Duración |
+|---|---|---|---|---|
+| `resnet18_corregida_s42` | variante corregida, seed 42, 30 épocas, lr 1e-4, lote 16, congeladas conv1-layer3 | 0.8571 | 0.9286 | 35.6 s |
+| `resnet18_corregida_s7` | ídem, seed 7 | 0.8571 | 1.0000 | 32.3 s |
+| `resnet18_corregida_s123` | ídem, seed 123 | 0.8963 | 1.0000 | 32.3 s |
+| `resnet18_cruda_s42` | variante cruda (sin corrección), seed 42 | 0.8280 | 0.9286 | 32.7 s |
+| `resnet18_clahe_s42` | variante corregida + CLAHE, seed 42 | 0.8571 | 1.0000 | 32.0 s |
+| `spark_pipeline` | Spark de la sección 14 del notebook (Colab) | — | — | 0.3 s |
+
+- Cada corrida de entrenamiento registra por época `perdida_train`, `perdida_val`, `f1_train`, `f1_val`
+  (30 pasos) y al final `test_exactitud`, `test_f1_macro`, `test_recall_maduro`, `test_precision_maduro`,
+  `test_fp_maduro`, `test_latencia_ms`.
+- **Lo que el notebook no guardó** y pide la plantilla: tags de integrante y commit, y artefactos. Los agrega
+  `src/registrar_modelo.py` (tags en las 5 corridas; artefactos en una corrida nueva `registro_modelo_*`:
+  `.pt`, `modelo_info.json`, `preprocesamiento.py`, `tabla_metas.csv`, latencia y figuras).
+- **Por qué se eligió la configuración final (para 8.2):** la variante "corregida" dio F1 0.857 en la semilla 42,
+  igual que CLAHE (0.857) y mejor que "cruda" (0.828); entre las 3 semillas de la corregida el F1 va de 0.857 a 0.896.
+  Argumento sugerido (confirmarlo el equipo): la corregida no pierde frente a CLAHE y usa un paso menos de preprocesamiento.
+  Con 35 fotos de prueba, 0.857 vs 0.828 es una diferencia de ~1 foto: no es concluyente.
+- **Registro (8.3), probado con este `mlflow.db`:** modelo `limon-madurez`, versión 1, tag `sha256 = 8eec3d12...`,
+  alias **`candidato`**. Motivo: F1 Pintón 0.743 < 0.75 (y la latencia p95 aún no se mide). Criterio de promoción:
+  7 metas + p95 < 150 ms en el contenedor → `produccion`. **PENDIENTE:** correrlo en la PC (ver `docs/pendientes.md`, B4).
+- **Cómo sabe el servicio qué versión usa:** el backend carga `modelo/` y devuelve el `sha256` en `/health` y en cada
+  `/predict`; cada fila de la tabla `predicciones` de PostgreSQL guarda ese `sha256`; el mismo valor es el tag de la
+  versión 1 en el registro.
+
+## 7. Huella computacional (sección 9.2) · `python src/huella.py`
+
+| Etapa | Tiempo real | Potencia (TDP) | Energía | CO2 (224.48 g/kWh) |
+|---|---|---|---|---|
+| Entrenamiento ResNet18, 5 corridas (Colab, GPU T4) | 164.9 s (mlflow.db) | 70 W | 0.00321 kWh | 0.72 g * |
+| Spark: job + mediciones (PC, i7-4770) | 30.8 min (consola) | 84 W | 0.04312 kWh | 9.68 g |
+| API: pruebas de latencia (PC) | PENDIENTE | 84 W | PENDIENTE | PENDIENTE |
+| **Total (sin la API)** | | | **0.04633 kWh** | **≈ 10.4 g** |
+
+- Factor de la red del Perú: **224.48 g CO2/kWh (2024)**, Our World in Data con datos de Ember
+  (https://ourworldindata.org/co2/country/peru). Otras fuentes: 197 g/kWh (LowCarbonPower, 12 meses a may-2026,
+  https://lowcarbonpower.org/region/Peru) y 238 g/kWh (Inzonex 2025, https://inzonex.co.uk/poweratlas/peru/).
+  No se encontró un factor oficial publicado por MINEM/COES: **PENDIENTE** si el docente lo exige.
+- \* El servidor de Colab no está en el Perú (región desconocida): esa fila es solo referencia.
+- Potencia = TDP (tope): i7-4770 84 W (TechPowerUp / Intel ARK del 4770K; **verificar** en la ficha del 4770,
+  https://ark.intel.com), T4 70 W (hoja de datos de NVIDIA; **verificar**). No incluye el resto de la PC, así que la
+  cifra es de orden de magnitud. El tiempo de entrenamiento cuenta solo las 5 corridas de ResNet18, no todo el notebook
+  (descarga, SVM, figuras).
+
+## 8. Código para reproducir (sección 8.4 / 11.1)
+
+- `src/entrenar.py`, `src/evaluar.py`: el proceso del notebook como scripts (misma lógica; probado en la nube con fotos
+  sintéticas). `src/evaluar.py` dio exactamente las métricas guardadas por `src/entrenar.py` para el mismo modelo.
+- `src/perfilar_entrenamiento.py` (5.5): **PENDIENTE** de correr con las fotos reales (`docs/pendientes.md`, C1).
+- `requirements.txt` con las versiones exactas de la corrida del 16-nov.

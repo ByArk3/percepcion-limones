@@ -8,7 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PYSPARK_PYTHON=python \
-    PYSPARK_DRIVER_PYTHON=python
+    PYSPARK_DRIVER_PYTHON=python \
+    GIT_PYTHON_REFRESH=quiet
 
 # Spark 4.0 necesita Java 17 o 21 (con el Java 23 de la PC no arranca)
 RUN apt-get update \

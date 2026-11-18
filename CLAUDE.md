@@ -41,6 +41,21 @@ Reglas que salen de esto:
 - **Nombre del lote:** `lote=2026-11-04` es la fecha real de la copia del dataset de la PC, así que se usa ese. Cuando se descargue una copia nueva, se crea un lote nuevo con su fecha (`lote=AAAA-MM-DD`).
 - **Modelo correcto:** antes de subirlo, Franco revisa que `modelo_info.json` diga `"epocas": 30`. Si dice otro número, usar la copia `resultados_04nov_30epocas\modelo\`. Comprobar la huella con `sha256` de `modelo_info.json`.
 
+### Estado al 18-nov-2026 (actualizado por Claude Code; la lógica de la sección 5 NO cambió)
+- **Corrida final de entrenamiento:** Colab, GPU Tesla T4, 16-nov (`notebooks/Grupo3_limones_drive_Colab_ejecutado_16nov.ipynb`).
+  227 fotos (236 - 9 duplicados), prueba 35. ResNet18: exactitud 0.895 ± 0.016, F1 macro 0.870 ± 0.023, recall Maduro
+  0.976 ± 0.041. Metas 6/7 (falla F1 Pintón 0.743). SVM espectral F1 0.897 → H1 no se cumple (umbral 0.949).
+  Las cifras de la sección 6 de esta guía (04-nov) quedan como historia.
+- **Modelo desplegado:** semilla 42, SHA-256 `8eec3d12ef05ec3286157fe2f8174f82b3b2d4ca237348b3576658e77dbf62ef`,
+  en `modelo/` + Release `modelo-v1`.
+- **Tarea A (Spark): hecha** en la PC el 16-nov (i7-4770, 4 físicos / 8 lógicos). Resultados en `resultados_spark/`.
+  H2 da −28.3 % (100 → 1,000 fotos) con |variación|: decisión del equipo pendiente.
+- **Tarea C:** el servicio quedó como 3 contenedores con `docker-compose.yml`: `servicio/frontend` (nginx + web),
+  `servicio/backend/app/main.py` (FastAPI; antes se pensó en `servicio/app/main.py`) y PostgreSQL. Funciona en la PC.
+- **Tareas B, D, E y F:** código listo en `src/` (`perfilar_entrenamiento.py`, `registrar_modelo.py`, `huella.py`,
+  `entrenar.py`, `evaluar.py`), `requirements.txt` y `data/README.md`.
+- Cifras reales y su interpretación: `docs/resultados_para_informe.md`. Lo que falta y cómo: `docs/pendientes.md`.
+
 ---
 
 ## 1. Contexto

@@ -220,13 +220,15 @@ def funcion_particion(dir_modelo, hilos=1, lote=16):
     return inferir
 
 
-def secuencial(rutas_locales, filas, dir_modelo, hilos=1):
-    """Bucle de Python puro (sin Spark) con las mismas funciones. Incluye la carga del modelo."""
+def secuencial(rutas_locales, filas, dir_modelo, hilos=1, lote=1):
+    """Bucle de Python puro (sin Spark) con las mismas funciones. Incluye la carga del modelo.
+    lote=1: de a una foto (como en la corrida del 16-nov). lote=16: por lotes, igual que la UDF de Spark."""
     t0 = time.perf_counter()
     clf = Clasificador(dir_modelo, hilos)
     partes = []
-    for ruta, fila in zip(rutas_locales, filas.itertuples(index=False)):
-        datos = open(ruta, "rb").read()
-        pdf = pd.DataFrame([fila._asdict()])
-        partes.append(tabla_resultado(pdf, clf.predecir([datos]), [datos], clf.clases, -1, clf.carga_ms))
+    filas = filas.reset_index(drop=True)
+    for i in range(0, len(rutas_locales), lote):
+        datos = [open(r, "rb").read() for r in rutas_locales[i:i + lote]]
+        pdf = filas.iloc[i:i + lote]
+        partes.append(tabla_resultado(pdf, clf.predecir(datos), datos, clf.clases, -1, clf.carga_ms))
     return pd.concat(partes, ignore_index=True), time.perf_counter() - t0

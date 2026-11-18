@@ -1,0 +1,28 @@
+# Versiones de la corrida FINAL de entrenamiento (Google Colab, GPU Tesla T4, 16-nov-2026, Python 3.13.16).
+# Salen de la última celda del notebook ejecutado (notebooks/Grupo3_limones_drive_Colab_ejecutado_16nov.ipynb).
+# Sirve para el notebook y para src/ (entrenar.py, evaluar.py, perfilar_entrenamiento.py, registrar_modelo.py, huella.py).
+#
+# En una PC sin GPU NVIDIA instalar PyTorch CPU (la versión se mantiene, cambia solo el sufijo):
+#   pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements.txt
+# El pipeline de Spark y el servicio usan sus propias imágenes Docker (pipeline/requirements.txt y
+# servicio/backend/requirements.txt), probadas con PyTorch 2.15.0+cpu.
+
+numpy==2.4.6
+pandas==2.2.3
+opencv-python==4.14.0.94        # cv2 4.14.0 (la única versión 4.14.0.x en PyPI)
+scikit-image==0.25.2
+scikit-learn==1.6.1
+PyWavelets==1.8.0
+pillow==11.3.0
+matplotlib==3.10.0
+torch==2.14.1
+torchvision==0.29.1
+torchinfo==1.8.0
+mlflow==3.18.0
+pyspark==4.0.5
+
+# Estas no quedaron registradas en la corrida (el notebook las instala sin versión); se fija la disponible al 18-nov:
+pillow-heif==1.8.1              # solo para fotos .heic
+pyarrow==20.0.0                 # Spark de la sección 14 del notebook
+psutil==7.2.2                   # uso de CPU en src/perfilar_entrenamiento.py
