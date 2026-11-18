@@ -1,6 +1,6 @@
 # Datos y pesos (no van al repositorio)
 dataset_limon_sutil/
-datos/
+/datos/
 *.pt
 *.zip
 *.docx
